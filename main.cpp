@@ -12,5 +12,12 @@ int main()
 //    {
 //        std::cout << token.value << ' ';
 //    }
-    std::cout << eval_t::eval(token::tokenize(input));
+    try
+    {
+        std::cout << eval_t::eval(token::tokenize(input));
+    }
+    catch(const std::exception &e)
+    {
+        std::cout << "Error: " << e.what() << std::endl;
+    }
 }

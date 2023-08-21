@@ -56,6 +56,7 @@ public:
     //Fields
     token_type type;
     std::string value;
+    static const constexpr std::string_view unknown_symbol_error_message = "Unknown symbol: {}";
 
     //Const var
     constexpr static const std::string_view

@@ -84,7 +84,7 @@ token::token(const std::string &value)
             }
             else
             {
-                type = unknown;
+                throw std::runtime_error(std::format(unknown_symbol_error_message, value));
             }
             return;
         }
@@ -97,8 +97,22 @@ token::token(const std::string &value)
     try
     {
         std::stod(value);
-        type = number;
-        return;
+        if (std::ranges::all_of(value, [] (char c)
+        {
+            return std::isdigit(static_cast<unsigned char>(c)) || c == '.' || c == 'e' || c == 'E' || c == '+' || c == '-';
+        }))
+        {
+            type = number;
+            return;
+        }
+        else
+        {
+            throw std::runtime_error(std::format(unknown_symbol_error_message, value));
+        }
+    }
+    catch (std::runtime_error& r)
+    {
+        throw r;
     }
     catch (...)
     {
@@ -113,18 +127,16 @@ token::token(const std::string &value)
             type = constant;
             return;
         }
-        else if(std::ranges::find_if(list_of_functions, [&value](const std::unique_ptr<function_base> &f)
+        if (std::ranges::find_if(list_of_functions, [&value](const std::unique_ptr<function_base> &f)
         { return f->notation == value; }) != list_of_functions.end())
         {
             type = function;
             return;
         }
+
     }
-    else
-    {
-        type = unknown;
-        return;
-    }
+    throw std::runtime_error(std::format(unknown_symbol_error_message, value));
+
 }
 token operator+(token lhs, const token &rhs)
 {
