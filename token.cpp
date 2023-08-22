@@ -110,10 +110,6 @@ token::token(const std::string &value)
             throw std::runtime_error(std::format(unknown_symbol_error_message, value));
         }
     }
-    catch (std::runtime_error& r)
-    {
-        throw r;
-    }
     catch (...)
     {
         type = unknown;

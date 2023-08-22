@@ -10,12 +10,6 @@
 class eval_t
 {
 private:
-    //Helper function
-    template<typename T>
-    static std::vector<T> subVector(const std::vector<T> &v, size_t start, size_t end)
-    {
-        return std::vector<T>(std::advance(v.begin(), start), std::advance(v.begin(), end));
-    }
     template<typename T, typename Iter>
     static std::vector<T> subVector(Iter start, Iter end)
     {
@@ -28,7 +22,7 @@ private:
         v.insert(start, replacement);
     }
     template<typename T, typename Iter>
-    static void replace(std::vector<T> &v, Iter start, Iter end, const std::vector<T> &replacement)
+    [[maybe_unused]] static void replace(std::vector<T> &v, Iter start, Iter end, const std::vector<T> &replacement)
     {
         v.erase(start, end);
         v.insert(start, replacement.begin(), replacement.end());
