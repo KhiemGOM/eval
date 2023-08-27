@@ -1,7 +1,7 @@
 # Math Expression Evaluator
 
 
-A simple and extensible math expression evaluator written in [programming language of your choice] that allows you to parse and evaluate mathematical expressions. This project is inspired by the functionality of popular calculator apps and libraries.
+A simple and extensible math expression evaluator written in C++ that allows you to parse and evaluate mathematical expressions. This project is inspired by the functionality of popular calculator apps and libraries.
 
 ## Features
 
