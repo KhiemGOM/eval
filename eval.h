@@ -7,37 +7,16 @@
 
 #include <vector>
 #include "token.h"
+#include "utilities.h"
 class eval_t
 {
 private:
-    template<typename T, typename Iter>
-    static std::vector<T> subVector(Iter start, Iter end)
-    {
-        return std::vector<T>(start, end);
-    }
-    template<typename T, typename Iter, typename V>
-    static void replace(std::vector<T> &v, Iter start, Iter end, const V &replacement)
-    {
-        v.erase(start, end);
-        v.insert(start, replacement);
-    }
-    template<typename T, typename Iter>
-    [[maybe_unused]] static void replace(std::vector<T> &v, Iter start, Iter end, const std::vector<T> &replacement)
-    {
-        v.erase(start, end);
-        v.insert(start, replacement.begin(), replacement.end());
-    }
+
     static double eval_function(auto func, const std::vector<double> &inputs)
     {
         return (**func)(inputs);
     }
-    template<typename T, typename P>
-    static auto to_iterator(const std::vector<T> &v, P val)
-    {
-        auto it = v.begin();
-        std::advance(it, std::distance(&*v.begin(), val));
-        return it;
-    }
+
     static auto get_parenthesis(const std::vector<token> &tokens)
     {
         auto open = tokens.end();
@@ -110,7 +89,6 @@ private:
     static constexpr const std::string_view missing_parenthesis_error_message = "Missing parenthesis";
     static constexpr const std::string_view unknown_symbol_error_message = "Unknown symbol";
     static constexpr const std::string_view invalid_expression_error_message = "Invalid expression";
-public:
 
     static std::vector<token> &simplify_sign_unary_operator(std::vector<token> &tokens)
     {
@@ -153,6 +131,22 @@ public:
         }
         return tokens;
     }
+
+    static void multiplication_shorthand(std::vector<token> &tokens)
+    {
+        //Insert * between number and function before eval
+        for (auto it = tokens.begin(); it != tokens.end() - 1; ++it)
+        {
+            if (it->type == token::number &&
+                ((it + 1)->type == token::function
+                    || (it + 1)->type == token::constant
+                    || (it + 1)->type == token::open_parenthesis))
+            {
+                tokens.insert(it + 1, token("*"));
+            }
+        }
+    }
+public:
 /*
      *  Recursive algorithm
      *  1. Evaluate expression inside closest parenthesis
@@ -164,6 +158,8 @@ public:
      */
     static double eval(std::vector<token> tokens)
     {
+        //Multiplication shorthand
+        multiplication_shorthand(tokens);
         //Parenthesis
         auto [open, close] = get_parenthesis(tokens);
         if (open != tokens.end() && close == tokens.end() || open == tokens.end() && close != tokens.end())
@@ -204,16 +200,6 @@ public:
                         open - 1,
                         close + 1,
                         token(eval_function(func, parameters_value)));
-                return eval(tokens);
-            }
-            if (is_integral((open - 1)->type))
-            {
-                //Multiplication shorthand
-                //Multiply the whole parenthesis with the number before binary_op
-                replace(tokens,
-                        open - 1,
-                        close + 1,
-                        token(eval(subVector<token>(open + 1, close)) * to_double(*(open - 1))));
                 return eval(tokens);
             }
             replace(tokens, open, close + 1, token(eval(subVector<token>(open + 1, close))));
@@ -264,19 +250,6 @@ public:
                     binary_op + 2,
                     token(std::pow(to_double(*(binary_op - 1)), to_double(*(binary_op + 1)))));
             return eval(tokens);
-        }
-        //Multiplication shorthand for constant
-        auto c = get_first_of_type(tokens, token::constant);
-        if (c != tokens.end())
-        {
-            if (c != tokens.begin() && (c - 1)->type == token::number)
-            {
-                replace(tokens,
-                        c - 1,
-                        c + 1,
-                        token(to_double(*(c - 1)) * to_double(*c)));
-                return eval(tokens);
-            }
         }
         //Multiplication and division
         binary_op = get_first_of_type(tokens, token::multiplicative_binary_operator);

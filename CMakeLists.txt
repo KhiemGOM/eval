@@ -10,4 +10,6 @@ add_executable(eval main.cpp
         constant.h
         constant.h
         function.h
-        eval.h)
+        eval.h
+        utilities.h
+        utilities.h)

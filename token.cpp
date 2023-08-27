@@ -3,6 +3,7 @@
 //
 
 #include "token.h"
+#include "utilities.h"
 std::vector<token> token::tokenize(const std::string &str)
 {
     std::string word;
@@ -21,8 +22,7 @@ std::vector<token> token::tokenize(const std::string &str)
             {
                 if (!temp.empty())
                 {
-                    tokens.emplace_back(temp);
-                    temp.clear();
+                    tokenize_words_and_numbers(tokens, temp);
                 }
                 if (get_delimiter_separation(k) == single_character)
                 {
@@ -32,11 +32,34 @@ std::vector<token> token::tokenize(const std::string &str)
         }
         if (!temp.empty())
         {
-            tokens.emplace_back(temp);
-            temp.clear();
+            tokenize_words_and_numbers(tokens, temp);
         }
     }
     return tokens;
+}
+void token::tokenize_words_and_numbers(std::vector<token> &tokens, std::string &temp)
+{
+    token tok;
+    try
+    { tok = token{temp}; }
+    catch (...)
+    {}
+    if (tok.type != unknown)
+    {
+        tokens.push_back(tok);
+        temp.clear();
+        return;
+    }
+    auto r = tok.separateWordsAndNumberToken();
+    if (r.empty())
+    {
+        throw std::runtime_error(std::format(unknown_symbol_error_message, temp));
+    }
+    else
+    {
+        tokens.insert(tokens.end(), r.begin(), r.end());
+    }
+    temp.clear();
 }
 token &token::operator+=(const token &other)
 {
@@ -49,6 +72,7 @@ token &token::operator+=(const token &other)
 }
 token::token(const std::string &value)
 {
+    type = unknown;
     this->value = value;
     //Find token type
     if (value == "(")
@@ -97,9 +121,10 @@ token::token(const std::string &value)
     try
     {
         std::stod(value);
-        if (std::ranges::all_of(value, [] (char c)
+        if (std::ranges::all_of(value, [](char c)
         {
-            return std::isdigit(static_cast<unsigned char>(c)) || c == '.' || c == 'e' || c == 'E' || c == '+' || c == '-';
+            return std::isdigit(static_cast<unsigned char>(c)) || c == '.' || c == 'e' || c == 'E' || c == '+'
+                || c == '-';
         }))
         {
             type = number;
@@ -131,7 +156,6 @@ token::token(const std::string &value)
         }
 
     }
-    throw std::runtime_error(std::format(unknown_symbol_error_message, value));
 
 }
 token operator+(token lhs, const token &rhs)
@@ -152,4 +176,37 @@ token::delimiter_separation token::get_delimiter_separation(const char &k)
     {
         return single_character;
     }
+}
+
+//For words and numbers token that isn't number or function or constant
+std::vector<token> token::separateWordsAndNumberToken() const
+{
+    if (type != unknown)
+    { return {}; }
+    std::vector<token> tokens;
+    //Extract all numbers characters in front of the string
+    std::string number;
+    auto itr = value.begin();
+    for (const auto &k: value)
+    {
+        if (std::isdigit(static_cast<unsigned char>(k)) || k == '.')
+        {
+            number += k;
+            itr++;
+        }
+        else
+        {
+            break;
+        }
+    }
+    if (number.empty()) return {};
+    auto tok = token(std::string(itr, value.end()));
+    if (tok.type != unknown)
+    {
+        tokens.emplace_back(number);
+        tokens.emplace_back(tok);
+        return tokens;
+    }
+    return {};
+
 }

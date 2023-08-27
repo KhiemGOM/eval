@@ -76,6 +76,9 @@ public:
 
     static delimiter_separation get_delimiter_separation(const char &k);
     static std::vector<token> tokenize(const std::string &str);
+private:
+    [[nodiscard]] std::vector<token> separateWordsAndNumberToken() const;
+    static void tokenize_words_and_numbers(std::vector<token> &tokens, std::string &temp);
 };
 
 #endif //TOKEN_H
