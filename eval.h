@@ -95,7 +95,7 @@ private:
 		int sign = 1;
 		bool is_prev_binary_op = false;
 		auto first_binary_op = tokens.begin();
-		for (auto it = tokens.begin(); it != tokens.end(); ++it)
+		for (auto it = tokens.begin(); it < tokens.end(); ++it)
 		{
 			if (it->type == token::additive_binary_operator)
 			{
@@ -135,7 +135,7 @@ private:
 	static void multiplication_shorthand(std::vector<token> &tokens)
 	{
 		//Insert * between number and function before eval
-		for (auto it = tokens.begin(); it < (tokens.end() - 1); ++it)
+		for (auto it = tokens.begin(); it < (tokens.end() - 1); std::advance(it, 1))
 		{
 			if (it->type == token::number &&
 				((it + 1)->type == token::function
@@ -206,7 +206,6 @@ public:
 			return eval(tokens);
 		}
 		//Simplify all sign unary operator
-
 		tokens = simplify_sign_unary_operator(tokens);
 		//Pre sign unary operator
 		auto binary_op = get_first_of_type(tokens, token::additive_binary_operator);
