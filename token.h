@@ -33,6 +33,7 @@ public:
 		multiplicative_binary_operator,
 		exponentiation_binary_operator,
 		post_unary_operator,
+		scientific_notation,
 		open_parenthesis,
 		close_parenthesis,
 		comma,
@@ -79,6 +80,7 @@ public:
 private:
 	[[nodiscard]] std::vector<token> separateWordsAndNumberToken() const;
 	static void tokenize_words_and_numbers(std::vector<token> &tokens, std::string &temp);
+	static bool is_number_char(char c);
 };
 
 #endif //TOKEN_H

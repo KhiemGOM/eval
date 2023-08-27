@@ -23,7 +23,7 @@ public:
 	~constant() = default;
 
 	std::string notation;
-	double value;
+	double value{};
 };
 
 static const std::vector<constant> list_of_constants{

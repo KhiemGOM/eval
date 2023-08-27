@@ -18,7 +18,7 @@
 template<class T>
 auto move_to_unique(T &&t)
 {
-	return std::make_unique<std::remove_reference_t<T>>(std::move(t));
+	return std::make_unique<std::remove_reference_t<T>>(std::move(t)); // NOLINT(*-move-forwarding-reference)
 }
 template<class V, class ... Args>
 auto make_vector_unique(Args ... args)
@@ -141,7 +141,7 @@ static const std::vector<std::unique_ptr<function_base>> list_of_functions = mak
 	function<double, double>("min", [](double input1, double input2)
 	{ return std::min(input1, input2); }),
 	function<double, double>("log", [](double input1, double input2)
-	{ return std::log(input1) / std::log(input2); }),
+	{ return std::log(input2) / std::log(input1); }),
 	function<double, double>("root", [](double input1, double input2)
 	{ return std::pow(input1, 1 / input2); }),
 	function<double, double, double>("lerp", [](double input1, double input2, double input3)

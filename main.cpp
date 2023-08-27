@@ -2,21 +2,42 @@
 #include <regex>
 #include "token.h"
 #include "eval.h"
+#include <thread>
+#include "Windows.h"
+
+void detect_esc()
+{
+	while (true)
+	{
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+		{
+			exit(0);
+		}
+	}
+}
+
 int main()
 {
-	std::string input;
-	std::getline(std::cin, input);
-//	auto t = token::tokenize(input);
-//	for (const auto &token: t)
-//	{
-//		std::cout << token.value << ' ';
-//	}
-	try
+	std::thread t(detect_esc);
+	if (t.joinable())
 	{
-		std::cout << eval_t::eval(token::tokenize(input));
+		t.detach();
 	}
-	catch (const std::exception &e)
+	std::string input;
+	while (true)
 	{
-		std::cout << "Error: " << e.what() << std::endl;
+		std::getline(std::cin, input);
+//	for (const auto &token: token::tokenize(input))
+//	{
+//		std::cout << token.value << ' ' << token.type << std::endl;
+//	}
+		try
+		{
+			std::cout << eval_t::eval(token::tokenize(input)) << std::endl;
+		}
+		catch (const std::exception &e)
+		{
+			std::cout << "Error: " << e.what() << std::endl;
+		}
 	}
 }

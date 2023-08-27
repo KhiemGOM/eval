@@ -135,7 +135,7 @@ private:
 	static void multiplication_shorthand(std::vector<token> &tokens)
 	{
 		//Insert * between number and function before eval
-		for (auto it = tokens.begin(); it != tokens.end() - 1; ++it)
+		for (auto it = tokens.begin(); it < (tokens.end() - 1); ++it)
 		{
 			if (it->type == token::number &&
 				((it + 1)->type == token::function
@@ -249,6 +249,24 @@ public:
 			        binary_op - 1,
 			        binary_op + 2,
 			        token(std::pow(to_double(*(binary_op - 1)), to_double(*(binary_op + 1)))));
+			return eval(tokens);
+		}
+		//Scientific notation
+		binary_op = get_first_of_type(tokens, token::scientific_notation);
+		if (binary_op != tokens.end())
+		{
+			if (binary_op == tokens.begin() || binary_op == tokens.end() - 1)
+			{
+				throw std::runtime_error(invalid_expression_error_message.data());
+			}
+			if (!is_integral((binary_op - 1)->type) || !is_integral((binary_op + 1)->type))
+			{
+				throw std::runtime_error(invalid_expression_error_message.data());
+			}
+			replace(tokens,
+			        binary_op - 1,
+			        binary_op + 2,
+			        token(to_double(*(binary_op - 1)) * std::pow(10, to_double(*(binary_op + 1)))));
 			return eval(tokens);
 		}
 		//Multiplication and division

@@ -75,6 +75,11 @@ token::token(const std::string &value)
 	type = unknown;
 	this->value = value;
 	//Find token type
+	if (value == "E")
+	{
+		type = scientific_notation;
+		return;
+	}
 	if (value == "(")
 	{
 		type = open_parenthesis;
@@ -123,8 +128,7 @@ token::token(const std::string &value)
 		std::stod(value);
 		if (std::ranges::all_of(value, [](char c)
 		{
-			return std::isdigit(static_cast<unsigned char>(c)) || c == '.' || c == 'e' || c == 'E' || c == '+'
-				|| c == '-';
+			return is_number_char(c);
 		}))
 		{
 			type = number;
@@ -158,6 +162,10 @@ token::token(const std::string &value)
 	}
 
 }
+bool token::is_number_char(char c)
+{
+	return isdigit(static_cast<unsigned char>(c)) || c == '.';
+}
 token operator+(token lhs, const token &rhs)
 {
 	if (lhs.type != rhs.type)
@@ -168,6 +176,10 @@ token operator+(token lhs, const token &rhs)
 }
 token::delimiter_separation token::get_delimiter_separation(const char &k)
 {
+	if (k == 'E')
+	{
+		return single_character;
+	}
 	if (std::isalpha(static_cast<unsigned char>(k)) || std::isdigit(static_cast<unsigned char>(k)) || k == '.')
 	{
 		return words_and_numbers;
@@ -189,7 +201,7 @@ std::vector<token> token::separateWordsAndNumberToken() const
 	auto itr = value.begin();
 	for (const auto &k: value)
 	{
-		if (std::isdigit(static_cast<unsigned char>(k)) || k == '.')
+		if (is_number_char(k))
 		{
 			number += k;
 			itr++;
