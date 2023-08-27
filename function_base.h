@@ -15,11 +15,11 @@
 class function_base
 {
 public:
-    virtual ~function_base() = default;
-    explicit function_base(std::string notation)
-        : notation(std::move(notation))
-    {};
-    std::string notation;
-    virtual double operator()(const std::vector<double>& inputs) = 0;
+	virtual ~function_base() = default;
+	explicit function_base(std::string notation)
+		: notation(std::move(notation))
+	{};
+	std::string notation;
+	virtual double operator()(const std::vector<double> &inputs) = 0;
 };
 #endif //FUNCTION_BASE_H
